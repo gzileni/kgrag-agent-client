@@ -1,0 +1,152 @@
+services:
+
+  kgrag-mcp-server:
+    container_name: kgrag_mcp_server
+    restart: always
+    profiles:
+      - mcp
+      - all
+    pull_policy: always
+    image: ghcr.io/gzileni/kgrag_mcp_server:main
+    ports:
+      - "8000:8000"
+      - "6379:6379"   # Redis
+      - "6333:6333"   # QDrant
+      - "6334:6334"   # QDrant
+      - "7474:7474"   # HTTP - Neo4j
+      - "7687:7687"   # Bolt - Neo4J
+    networks:
+      - kgrag-network
+    environment:
+      - APP_ENV=${APP_ENV}
+      - LLM_MODEL_TYPE=${LLM_MODEL_TYPE}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_REGION=${AWS_REGION}
+      - AWS_BUCKET_NAME=${AWS_BUCKET_NAME}
+      - COLLECTION_NAME=${COLLECTION_NAME}
+      - LLM_MODEL_NAME=${LLM_MODEL_NAME}
+      - MODEL_EMBEDDING=${MODEL_EMBEDDING}
+      - LLM_URL=${LLM_URL}
+      - LOKI_URL=http://kgrag-loki:3100/loki/api/v1/push
+      - NEO4J_USERNAME=${NEO4J_USERNAME}
+      - NEO4J_PASSWORD=${NEO4J_PASSWORD}
+      - NEO4J_AUTH=${NEO4J_AUTH}
+    volumes:
+      - qdrant_data:/qdrant/storage:z
+      - redis_data:/data
+      - neo4j_data:/var/lib/neo4j/data
+
+  kgrag-agent:
+    container_name: kgrag_agent
+    profiles:
+      - agent
+      - all
+    pull_policy: always
+    restart: always
+    image: ghcr.io/gzileni/kgrag-agent:main
+    ports:
+      - "8010:8010"  
+    expose:
+      - 8010
+    environment:
+      - MCP_SERVER_KGRAG="http://kgrag_mcp_server:8000/sse"
+      - USER_AGENT=${USER_AGENT}
+      - APP_ENV=${APP_ENV}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - LLM_MODEL_TYPE=${LLM_MODEL_TYPE}
+      - LLM_MODEL_NAME=${LLM_MODEL_NAME}
+      - MODEL_EMBEDDING=${MODEL_EMBEDDING}
+      - LLM_URL=${LLM_URL}
+      - LOKI_URL=http://kgrag-loki:3100/loki/api/v1/push
+      - REDIS_URL=redis://kgrag_mcp_server:6379
+      - REDIS_HOST=kgrag_mcp_server
+      - REDIS_PORT=6379
+      - REDIS_DB=10
+      - QDRANT_URL="http://kgrag_mcp_server:6333"
+    networks:
+      - kgrag-network
+
+  kgrag-loki:
+    profiles:
+      - dev
+      - mcp
+      - agent
+      - all
+    container_name: kgrag-loki
+    image: grafana/loki:latest
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - kgrag-network
+
+  kgrag-promtail:
+    container_name: kgrag-promtail
+    image: grafana/promtail:latest
+    profiles:
+      - dev
+      - mcp
+      - agent
+      - all
+    volumes:
+      - loki_log:/var/log
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      - kgrag-network
+
+  kgrag-grafana:
+    container_name: kgrag-grafana
+    profiles:
+      - dev
+      - mcp
+      - agent
+      - all
+    environment:
+      - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_FEATURE_TOGGLES_ENABLE=alertingSimplifiedRouting,alertingQueryAndExpressionsStepMode
+    entrypoint:
+      - sh
+      - -euc
+      - |
+        mkdir -p /etc/grafana/provisioning/datasources
+        cat <<EOF > /etc/grafana/provisioning/datasources/ds.yaml
+        apiVersion: 1
+        datasources:
+        - name: Loki
+          type: loki
+          access: proxy 
+          orgId: 1
+          url: http://kgrag-loki:3100
+          basicAuth: false
+          isDefault: true
+          version: 1
+          editable: false
+        EOF
+        /run.sh
+    image: grafana/grafana:latest
+    volumes:
+      - grafana_data:/var/lib/grafana  # Volume persistente per i dati di Grafana
+    ports:
+      - "3000:3000"
+    networks:
+      - kgrag-network
+
+volumes:
+  qdrant_data:
+  redis_data:
+  neo4j_data:
+  grafana_data:
+  loki_log:
+
+networks:
+  kgrag-network:
+    name: kgrag-network
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.16.110.0/24
