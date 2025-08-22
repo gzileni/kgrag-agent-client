@@ -1,4 +1,4 @@
-[![View on GitHub](https://img.shields.io/badge/View%20on-GitHub-181717?style=for-the-badge&logo=github)](https://github.com/gzileni/kgrag-agent-clientt)
+[![View on GitHub](https://img.shields.io/badge/View%20on-GitHub-181717?style=for-the-badge&logo=github)](https://github.com/gzileni/kgrag-agent-client)
 [![GitHub stars](https://img.shields.io/github/stars/gzileni/kgrag-agent-client?style=social)](https://github.com/gzileni/kgrag-agent-client/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/gzileni/kgrag-agent-client?style=social)](https://github.com/gzileni/kgrag-agent-client/network)
 
