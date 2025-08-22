@@ -1,0 +1,5 @@
+.venv/
+.vscode/
+pyproject.toml
+.env
+_config.yml

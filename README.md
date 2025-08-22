@@ -1,4 +1,6 @@
-# KGRAG-AGENT-CLIENT
+[![View on GitHub](https://img.shields.io/badge/View%20on-GitHub-181717?style=for-the-badge&logo=github)](https://github.com/gzileni/kgrag-agent-clientt)
+[![GitHub stars](https://img.shields.io/github/stars/gzileni/kgrag-agent-client?style=social)](https://github.com/gzileni/kgrag-agent-client/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/gzileni/kgrag-agent-client?style=social)](https://github.com/gzileni/kgrag-agent-client/network)
 
 Client for agent-to-agent (A2A) use, designed for searching and ingesting data into a Neo4j-based knowledge graph. It enables autonomous agents to exchange requests and results (agent-to-agent), enrich and index information via LLMs (e.g., OpenAI, Ollama), and populate the graph with nodes, relationships, and embeddings for semantic search.
 

@@ -1,0 +1,24 @@
+theme: minima
+title: Kgrag Agent Client
+author: Giuseppe Zileni
+email: gzileni@hotmail.com
+description: >-
+  Client for agent-to-agent (A2A) use, designed for searching and ingesting data 
+  into a Neo4j-based knowledge graph. It enables autonomous agents to exchange 
+  requests and results (agent-to-agent), enrich and index information 
+  via LLMs (e.g., OpenAI, Ollama), and populate the graph with nodes, 
+  relationships, and embeddings for semantic search.
+version: 1.0.0
+
+github_username:  gzileni
+linkedin_username: gzileni
+
+plugins:
+ - jekyll-feed
+ - jekyll-seo-tag
+
+social:
+  - icon: fab fa-github
+    link: https://github.com/gzileni/kgrag-agent-client
+  - icon: fab fa-linkedin
+    link: https://www.linkedin.com/in/gzileni
