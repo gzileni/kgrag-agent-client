@@ -8,7 +8,17 @@ Client for agent-to-agent (A2A) use, designed for searching and ingesting data i
 
 ## Data ingestion
 
-To ingest a PDF, send a POST request to `http://localhost:8020/chat` with a JSON body containing the `user_input` field set to the file path (for example: `/Users/me/my_file.pdf`). Note that providing a local file path does not transfer the file contents to the server. To actually ingest the PDF you must either:
+To ingest a PDF, send a POST request to `http://localhost:8020/chat` with a JSON body containing the `user_input` field set to the file path (for example: `/Users/me/my_file.pdf`):
+
+```bash
+curl --location 'http://localhost:8020/chat' \
+--header 'Content-Type: application/json' \
+--data '{
+    "user_input": "/Users/me/my_file.pdf"
+}'
+```
+
+Note that providing a local file path does not transfer the file contents to the server. To actually ingest the PDF you must either:
 
 - ensure the server has direct access to the given path, or
 - upload the file contents (for example via multipart/form-data upload or by including the file encoded in base64 in the JSON).

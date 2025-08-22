@@ -68,6 +68,24 @@ services:
     networks:
       - kgrag-network
 
+  kgrag-agent-client:
+    container_name: kgrag_agent_client
+    profiles:
+      - agent
+      - all
+    pull_policy: always
+    restart: always
+    image: ghcr.io/gzileni/kgrag-agent-client:main
+    ports:
+      - "8020:8020"  
+    expose:
+      - 8020
+    environment:
+      - APP_VERSION=1.0.0
+      - A2A_CLIENT=http://kgrag_agent:8010
+    networks:
+      - kgrag-network
+
   kgrag-loki:
     profiles:
       - dev
